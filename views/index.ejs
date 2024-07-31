@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="pt">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Clima</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <h1>Clima</h1>
+
+    <form class="busca">
+      <input type="search" id="searchInput" />
+      <button>Buscar</button>
+    </form>
+
+    <div class="resultado">
+      <div class="titulo">--</div>
+
+      <div class="info">
+        <div class="temp">
+          <div class="tempTitulo">Temperatura</div>
+          <div class="tempInfo">-- <sup>ºC</sup></div>
+          <img src="http://openweathermap.org/img/wn/10d@2x.png" />
+        </div>
+        <div class="vento">
+          <div class="ventoTitulo">Vento</div>
+          <div class="ventoInfo">-- <span>km/h</span></div>
+          <div class="ventoArea">
+            <div class="ventoPonto" style="transform: rotate(0deg)"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="aviso"></div>
+
+    <footer>Criado por Tifany - B7Web</footer>
+
+    <script>
+      const apiKey = "<%= apiKey %>";
+
+      document
+        .querySelector(".busca")
+        .addEventListener("submit", async (event) => {
+          event.preventDefault();
+
+          let input = document.querySelector("#searchInput").value;
+
+          if (input !== "") {
+            showWarning("Carregando...");
+
+            let url = `https://api.openweathermap.org/data/2.5/weather?q=${encodeURI(
+              input
+            )}&appid=${apiKey}&units=metric&lang=pt_br`;
+
+            let results = await fetch(url);
+            let json = await results.json();
+
+            if (json.cod === 200) {
+              showInfo({
+                name: json.name,
+                country: json.sys.country,
+                temp: json.main.temp,
+                tempIcon: json.weather[0].icon,
+                windSpeed: json.wind.speed,
+                windAngle: json.wind.deg,
+              });
+            } else {
+              showWarning("nao encontramos essa localizacao.");
+            }
+          }
+        });
+
+      function showInfo(json) {
+        showWarning("");
+
+        document.querySelector(".resultado").style.display = "block";
+
+        document.querySelector(
+          ".titulo"
+        ).innerHTML = `${json.name}, ${json.country}`;
+        document.querySelector(
+          ".tempInfo"
+        ).innerHTML = `${json.temp} <sup>°C</sup>`;
+        document.querySelector(
+          ".ventoInfo"
+        ).innerHTML = `${json.windSpeed} <span>km/h</span>`;
+
+        document
+          .querySelector(".temp img")
+          .setAttribute(
+            "src",
+            `http://openweathermap.org/img/wn/${json.tempIcon}@2x.png`
+          );
+
+        document.querySelector(".ventoPonto ").style.transform = `rotate(${
+          json.windAngle - 90
+        }deg)`;
+      }
+
+      function showWarning(msg) {
+        document.querySelector(".aviso").innerHTML = msg;
+      }
+    </script>
+  </body>
+</html>
