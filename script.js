@@ -1,4 +1,7 @@
-document.querySelector(".busca").addEventListener("submit", (event) => {
+require("dotenv").config();
+const apiKey = process.env.API_KEY;
+
+document.querySelector(".busca").addEventListener("submit", async (event) => {
   event.preventDefault();
 
   let input = document.querySelector("#searchInput").value;
@@ -8,7 +11,12 @@ document.querySelector(".busca").addEventListener("submit", (event) => {
 
     let url = `https://api.openweathermap.org/data/2.5/weather?q=${encodeURI(
       input
-    )}&appid=${API_KEY}&units=metric&lang=pt_br`;
+    )}&appid=${apiKey}&units=metric&lang=pt_br`;
+
+    let results = await fetch(url);
+    let json = await results.json();
+
+    console.log(json);
   }
 });
 
